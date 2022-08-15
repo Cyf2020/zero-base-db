@@ -21,7 +21,7 @@ public class TableManagerImpl implements TableManager {
     private final Map<String, Table> tableCache;
     private final Map<Long, List<Table>> xidTableCache;
     private final Lock lock;
-    
+
     TableManagerImpl(VersionManager vm, DataManager dm, Booter booter) {
         this.vm = vm;
         this.dm = dm;
@@ -34,7 +34,7 @@ public class TableManagerImpl implements TableManager {
 
     private void loadTables() {
         long uid = firstTableUid();
-        while(uid != 0) {
+        while (uid != 0) {
             Table tb = Table.loadTable(this, uid);
             uid = tb.nextUid;
             tableCache.put(tb.name, tb);
@@ -54,21 +54,24 @@ public class TableManagerImpl implements TableManager {
     @Override
     public BeginRes begin(Begin begin) {
         BeginRes res = new BeginRes();
-        int level = begin.isRepeatableRead?1:0;
+        int level = begin.isRepeatableRead ? 1 : 0;
         res.xid = vm.begin(level);
         res.result = "begin".getBytes();
         return res;
     }
+
     @Override
     public byte[] commit(long xid) throws Exception {
         vm.commit(xid);
         return "commit".getBytes();
     }
+
     @Override
     public byte[] abort(long xid) {
         vm.abort(xid);
         return "abort".getBytes();
     }
+
     @Override
     public byte[] show(long xid) {
         lock.lock();
@@ -78,7 +81,7 @@ public class TableManagerImpl implements TableManager {
                 sb.append(tb.toString()).append("\n");
             }
             List<Table> t = xidTableCache.get(xid);
-            if(t == null) {
+            if (t == null) {
                 return "\n".getBytes();
             }
             for (Table tb : t) {
@@ -89,17 +92,18 @@ public class TableManagerImpl implements TableManager {
             lock.unlock();
         }
     }
+
     @Override
     public byte[] create(long xid, Create create) throws Exception {
         lock.lock();
         try {
-            if(tableCache.containsKey(create.tableName)) {
+            if (tableCache.containsKey(create.tableName)) {
                 throw ServerError.DuplicatedTableException;
             }
             Table table = Table.createTable(this, firstTableUid(), xid, create);
             updateFirstTableUid(table.uid);
             tableCache.put(create.tableName, table);
-            if(!xidTableCache.containsKey(xid)) {
+            if (!xidTableCache.containsKey(xid)) {
                 xidTableCache.put(xid, new ArrayList<>());
             }
             xidTableCache.get(xid).add(table);
@@ -108,44 +112,48 @@ public class TableManagerImpl implements TableManager {
             lock.unlock();
         }
     }
+
     @Override
     public byte[] insert(long xid, Insert insert) throws Exception {
         lock.lock();
         Table table = tableCache.get(insert.tableName);
         lock.unlock();
-        if(table == null) {
+        if (table == null) {
             throw ServerError.TableNotFoundException;
         }
         table.insert(xid, insert);
         return "insert".getBytes();
     }
+
     @Override
     public byte[] read(long xid, Select read) throws Exception {
         lock.lock();
         Table table = tableCache.get(read.tableName);
         lock.unlock();
-        if(table == null) {
+        if (table == null) {
             throw ServerError.TableNotFoundException;
         }
         return table.read(xid, read).getBytes();
     }
+
     @Override
     public byte[] update(long xid, Update update) throws Exception {
         lock.lock();
         Table table = tableCache.get(update.tableName);
         lock.unlock();
-        if(table == null) {
+        if (table == null) {
             throw ServerError.TableNotFoundException;
         }
         int count = table.update(xid, update);
         return ("update " + count).getBytes();
     }
+
     @Override
     public byte[] delete(long xid, Delete delete) throws Exception {
         lock.lock();
         Table table = tableCache.get(delete.tableName);
         lock.unlock();
-        if(table == null) {
+        if (table == null) {
             throw ServerError.TableNotFoundException;
         }
         int count = table.delete(xid, delete);

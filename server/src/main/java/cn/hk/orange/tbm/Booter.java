@@ -20,15 +20,15 @@ public class Booter {
 
     public static Booter create(String path) {
         removeBadTmp(path);
-        File f = new File(path+BOOTER_SUFFIX);
+        File f = new File(path + BOOTER_SUFFIX);
         try {
-            if(!f.createNewFile()) {
+            if (!f.createNewFile()) {
                 Panic.panic(ServerError.FileExistsException);
             }
         } catch (Exception e) {
             Panic.panic(e);
         }
-        if(!f.canRead() || !f.canWrite()) {
+        if (!f.canRead() || !f.canWrite()) {
             Panic.panic(ServerError.FileCannotRWException);
         }
         return new Booter(path, f);
@@ -36,18 +36,18 @@ public class Booter {
 
     public static Booter open(String path) {
         removeBadTmp(path);
-        File f = new File(path+BOOTER_SUFFIX);
-        if(!f.exists()) {
+        File f = new File(path + BOOTER_SUFFIX);
+        if (!f.exists()) {
             Panic.panic(ServerError.FileNotExistsException);
         }
-        if(!f.canRead() || !f.canWrite()) {
+        if (!f.canRead() || !f.canWrite()) {
             Panic.panic(ServerError.FileCannotRWException);
         }
         return new Booter(path, f);
     }
 
     private static void removeBadTmp(String path) {
-        new File(path+BOOTER_TMP_SUFFIX).delete();
+        new File(path + BOOTER_TMP_SUFFIX).delete();
     }
 
     private Booter(String path, File file) {
@@ -72,22 +72,22 @@ public class Booter {
         } catch (Exception e) {
             Panic.panic(e);
         }
-        if(!tmp.canRead() || !tmp.canWrite()) {
+        if (!tmp.canRead() || !tmp.canWrite()) {
             Panic.panic(ServerError.FileCannotRWException);
         }
-        try(FileOutputStream out = new FileOutputStream(tmp)) {
+        try (FileOutputStream out = new FileOutputStream(tmp)) {
             out.write(data);
             out.flush();
-        } catch(IOException e) {
+        } catch (IOException e) {
             Panic.panic(e);
         }
         try {
-            Files.move(tmp.toPath(), new File(path+BOOTER_SUFFIX).toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch(IOException e) {
+            Files.move(tmp.toPath(), new File(path + BOOTER_SUFFIX).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
             Panic.panic(e);
         }
-        file = new File(path+BOOTER_SUFFIX);
-        if(!file.canRead() || !file.canWrite()) {
+        file = new File(path + BOOTER_SUFFIX);
+        if (!file.canRead() || !file.canWrite()) {
             Panic.panic(ServerError.FileCannotRWException);
         }
     }

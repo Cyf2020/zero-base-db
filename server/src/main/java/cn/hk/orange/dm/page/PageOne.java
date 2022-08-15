@@ -27,6 +27,7 @@ public class PageOne {
     }
 
     private static void setVcOpen(byte[] raw) {
+        // 填充随机字节的数组
         System.arraycopy(RandomUtil.randomBytes(LEN_VC), 0, raw, OF_VC, LEN_VC);
     }
 

@@ -2,7 +2,6 @@ package cn.hk.orange;
 
 import cn.hk.orange.dm.DataManager;
 import cn.hk.orange.exception.ServerError;
-import cn.hk.orange.server.Server;
 import cn.hk.orange.tbm.TableManager;
 import cn.hk.orange.tm.TransactionManager;
 import cn.hk.orange.utils.Panic;
@@ -11,7 +10,7 @@ import cn.hk.orange.vm.VersionManagerImpl;
 
 
 
-public class Launcher {
+public class Server {
 
     public static final int port = 9999;
 
@@ -40,8 +39,8 @@ public class Launcher {
 //    }
 
     public static void main(String[] args) {
-        createDB("D:\\Users\\yifan_cao\\Desktop\\code\\MYDB\\tmp\\mydb");
-        openDB("D:\\Users\\yifan_cao\\Desktop\\code\\MYDB\\tmp\\mydb", 64 * MB);
+//        createDB("D:\\Users\\yifan_cao\\Desktop\\tmp\\mydb");
+        openDB("D:\\Users\\yifan_cao\\Desktop\\tmp\\mydb", 64 * MB);
     }
 
     private static void createDB(String path) {
@@ -58,7 +57,7 @@ public class Launcher {
         DataManager dm = DataManager.open(path, mem, tm);
         VersionManager vm = new VersionManagerImpl(tm, dm);
         TableManager tbm = TableManager.open(path, vm, dm);
-        new Server(port, tbm).start();
+        new cn.hk.orange.server.Server(port, tbm).start();
     }
 
     private static long parseMem(String memStr) {

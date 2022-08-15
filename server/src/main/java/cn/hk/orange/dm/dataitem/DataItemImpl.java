@@ -15,13 +15,15 @@ import cn.hk.orange.dm.page.Page;
  * DataSize  2字节，标识Data的长度
  */
 public class DataItemImpl implements DataItem {
-
+    // 开始位置
     static final int OF_VALID = 0;
     static final int OF_SIZE = 1;
     static final int OF_DATA = 3;
 
     private final SubArray raw;
     private final byte[] oldRaw;
+
+    // 读写锁 基于ReentrantReadWriteLock
     private final Lock rLock;
     private final Lock wLock;
     private final DataManagerImpl dm;

@@ -9,8 +9,8 @@ import java.nio.channels.FileChannel;
 import java.util.Random;
 
 public class IOUtil {
-    public static Long readLong(FileChannel fc, int offset) throws IOException {
-        ByteBuffer buf = ByteBuffer.allocate(offset);
+    public static Long readLong(FileChannel fc, int offset, int size) throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(size);
         fc.position(offset);
         fc.read(buf);
         return Parser.parseLong(buf.array());

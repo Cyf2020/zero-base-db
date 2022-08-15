@@ -29,6 +29,12 @@ public interface TransactionManager {
 
     void close();
 
+    /**
+     * 创建TM .xid结尾的文件 保存事务xid与状态
+     * @author Cyf yifan_cao@ctrip.com
+     * @param path 文件保存路径 到.xid后缀前
+     * @return TM
+     */
     static TransactionManagerImpl create(String path) {
         try {
             Files.createDirectories(Paths.get(path).getParent());
@@ -68,6 +74,13 @@ public interface TransactionManager {
         return new TransactionManagerImpl(raf, fc);
     }
 
+    /**
+     * 打开历史文件
+     * @author Cyf yifan_cao@ctrip.com
+     * @param path 路径
+     * @see TransactionManagerImpl
+     * @return TM
+     */
     static TransactionManagerImpl open(String path) {
         File f = new File(path + TransactionManagerImpl.XID_SUFFIX);
         if (!f.exists()) {

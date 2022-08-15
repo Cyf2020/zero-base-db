@@ -85,7 +85,7 @@ public class VersionManagerImpl extends AbstractCache<Entry> implements VersionM
         if (t.err != null) {
             throw t.err;
         }
-        Entry entry = null;
+        Entry entry;
         try {
             entry = super.get(uid);
         } catch (Exception e) {
@@ -99,7 +99,7 @@ public class VersionManagerImpl extends AbstractCache<Entry> implements VersionM
             if (!Visibility.isVisible(tm, t, entry)) {
                 return false;
             }
-            Lock l = null;
+            Lock l;
             try {
                 l = lt.add(xid, uid);
             } catch (Exception e) {
@@ -193,11 +193,7 @@ public class VersionManagerImpl extends AbstractCache<Entry> implements VersionM
 
     @Override
     protected Entry getForCache(long uid) throws Exception {
-        Entry entry = Entry.loadEntry(this, uid);
-        if (entry == null) {
-            throw ServerError.NullEntryException;
-        }
-        return entry;
+        return Entry.loadEntry(this, uid);
     }
 
     @Override

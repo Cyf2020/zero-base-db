@@ -132,7 +132,7 @@ public class PageCacheImpl extends AbstractCache<Page> implements PageCache {
     }
 
     private static long pageOffset(int pgno) {
-        return (pgno - 1) * PAGE_SIZE;
+        return (long) (pgno - 1) * PAGE_SIZE;
     }
 
 }

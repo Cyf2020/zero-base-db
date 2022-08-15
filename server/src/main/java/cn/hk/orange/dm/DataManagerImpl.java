@@ -16,6 +16,9 @@ import cn.hk.orange.tm.TransactionManager;
 import cn.hk.orange.utils.Panic;
 import cn.hk.orange.utils.Types;
 
+/**
+ * @author Cyf yifan_cao@ctrip.com
+ */
 public class DataManagerImpl extends AbstractCache<DataItem> implements DataManager {
 
     TransactionManager tm;
@@ -32,10 +35,16 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
         this.pIndex = new PageIndex();
     }
 
+    /**
+     * @param uid uid
+     * @return di
+     * @throws Exception 读取错误
+     * @author Cyf yifan_cao@ctrip.com
+     */
     @Override
     public DataItem read(long uid) throws Exception {
-        DataItemImpl di = (DataItemImpl)super.get(uid);
-        if(!di.isValid()) {
+        DataItemImpl di = (DataItemImpl) super.get(uid);
+        if (!di.isValid()) {
             di.release();
             return null;
         }
@@ -45,12 +54,12 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
     @Override
     public long insert(long xid, byte[] data) throws Exception {
         byte[] raw = DataItem.wrapDataItemRaw(data);
-        if(raw.length > PageX.MAX_FREE_SPACE) {
+        if (raw.length > PageX.MAX_FREE_SPACE) {
             throw ServerError.DataTooLargeException;
         }
 
         PageInfo pi = null;
-        for(int i = 0; i < 5; i ++) {
+        for (int i = 0; i < 5; i++) {
             pi = pIndex.select(raw.length);
             if (pi != null) {
                 break;
@@ -59,7 +68,7 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
                 pIndex.add(newPgno, PageX.MAX_FREE_SPACE);
             }
         }
-        if(pi == null) {
+        if (pi == null) {
             throw ServerError.DatabaseBusyException;
         }
 
@@ -77,7 +86,7 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
 
         } finally {
             // 将取出的pg重新插入pIndex
-            if(pg != null) {
+            if (pg != null) {
                 pIndex.add(pi.pgno, PageX.getFreeSpace(pg));
             } else {
                 pIndex.add(pi.pgno, freeSpace);
@@ -107,9 +116,9 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
 
     @Override
     protected DataItem getForCache(long uid) throws Exception {
-        short offset = (short)(uid & ((1L << 16) - 1));
+        short offset = (short) (uid & ((1L << 16) - 1));
         uid >>>= 32;
-        int pgno = (int)(uid & ((1L << 32) - 1));
+        int pgno = (int) (uid & ((1L << 32) - 1));
         Page pg = pc.getPage(pgno);
         return DataItem.parseDataItem(pg, offset, this);
     }
@@ -144,7 +153,7 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
     // 初始化pageIndex
     void fillPageIndex() {
         int pageNumber = pc.getPageNumber();
-        for(int i = 2; i <= pageNumber; i ++) {
+        for (int i = 2; i <= pageNumber; i++) {
             Page pg = null;
             try {
                 pg = pc.getPage(i);
@@ -155,5 +164,5 @@ public class DataManagerImpl extends AbstractCache<DataItem> implements DataMana
             pg.release();
         }
     }
-    
+
 }
